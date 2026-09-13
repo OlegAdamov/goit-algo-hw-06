@@ -6,7 +6,7 @@ from re import findall
 class Field:    # Базовий клас для полів запису.
     def __init__(self, value):
         self.value = value
-        print(f"Field: {self.value = }")
+        # print(f"Field self.value: {self.value}", type(self.value))
 
     def __str__(self):
         return str(self.value)  # Повернення строки value
@@ -14,18 +14,23 @@ class Field:    # Базовий клас для полів запису.
 
 class Name(Field):  # Клас для зберігання імені контакту. Обов'язкове поле.
     
-    def __init__(self, name):
-        self.name = name
-        # print(f"Name: {self.name = }")
+    def __init__(self, value):
+        Field.__init__(self, value)
+        self.name = value
+        # print(f"Name self.name: {self.name}", type(self.name))
 
 
 class Phone(Field):     # Клас для зберігання номера телефону. Має валідацію формату (10 цифр).
 
-    def __init__(self):
+    def __init__(self, value):
+        Field.__init__(self, value)
         self.phones = []
-        # print(f"Phone: {self.phones = }")
+        # print(f"Phone self.phones: {self.phones}", type(self.phones))
 
     def is_valid_number(self, phone: str) -> bool:
+        """
+        Метод перевірки номера на валідність
+        """
         if len(phone) != 10:
             return False
 
@@ -39,14 +44,15 @@ class Phone(Field):     # Клас для зберігання номера те
 class Record:       # Клас для зберігання інформації про контакт, включаючи ім'я та список телефонів.
 
     def __init__(self, name: str):
-        self.name = Name(name)
-        self.phones = Phone()
-        print(f"Record: {self.name.name = }")
-        print(f"Record: {self.phones.phones = }")
 
-    def add_phone(self, phone: str):
+        self.name = Name(name)
+        self.phones = []
+        # print(f"Record self.name: {self.name}", type(self.name))
+        # print(f"Record self.phones: {self.phones}", type(self.phones))
+
+    def add_phone(self, phone: str) -> None:
         """
-        Функція для додавання телефонів.
+        Метод для додавання телефонів.
         """
         if not self.phones.is_valid_number(phone):
             print(f"Phone {phone} is not added")
@@ -54,9 +60,9 @@ class Record:       # Клас для зберігання інформації 
         self.phones.phones.append(phone)
         print(f"Phone {phone} is added")
 
-    def remove_phone(self, phone: str):
+    def remove_phone(self, phone: str) -> None:
         """
-        Функція для видалення телефонів.
+        Метод для видалення телефонів.
         """
         if not self.phones.is_valid_number(phone):
             print('Phone number is not valid')
@@ -64,9 +70,9 @@ class Record:       # Клас для зберігання інформації 
         self.phones.phones.remove(phone)
         print(f"The phone number {phone} has been removed.")
 
-    def edit_phone(self, old_phone: str, new_phone: str):
+    def edit_phone(self, old_phone: str, new_phone: str) -> None:
         """
-        Функція для редагування телефонів.
+        Метод для редагування телефонів.
         """
         if not self.phones.is_valid_number(old_phone) or not self.phones.is_valid_number(new_phone):
             print('Phone number is not valid')
@@ -76,81 +82,96 @@ class Record:       # Клас для зберігання інформації 
         self.phones.phones.insert(index_old, new_phone)
         print("Your phone number is changed")
 
-    def find_phone(self, phone: str):
+    def find_phone(self, phone: str) -> str:
         """
-        Функція поошуку телефону.
+        Метод поошуку телефону.
         """
-        print(f"Find phone: {phone = }")
-        find_phone_index = self.phones.phones.index(phone)
+        print(f"Find phone: {phone = }; {type(phone)}")
+        print(f"Find phone: {self.phones.phones = }; {type(self.phones.phones)}")
+        for found_phone in self.phones.phones:
+            if found_phone == phone:
+                print(f"Record Find phone: {found_phone = }; {type(found_phone)}")
+                return found_phone
+        return f"This phone number {phone} is not in the contact list."
 
-        print(f"Find phone: {self.phones.phones[find_phone_index] = }")
-        return self.phones.phones[find_phone_index]
-
-    def __str__(self):
-        return f"Contact name: {self.name.name}, phones: {'; '.join(p for p in self.phones.phones)}"
+    def __str__(self) -> str:
+        return f"Contact in Record name: {self.name.name}, phones: {'; '.join(p for p in self.phones.phones)}"
 
 
-# class AddressBook(UserDict):    # Клас для зберігання та управління записами.
-#     # реалізація класу
+class AddressBook(UserDict):    # Клас для зберігання та управління записами.
+    # реалізація класу
 
-#     """
-#     Додавання записів.
-#     Пошук записів за іменем.
-#     Видалення записів за іменем.
-#     """
-#     def __init__(self, name: str):
-#         self.data = {}
+    """
+    Видалення записів за іменем.
+    """
+    # def __init__(self):
+    #     self.data = {}  # Record(Name: Phone)
+    #     # print(f"AddressBook Init: {self.data = }; {type(self.data)}")
+    #     self.value = []
+    #     # print(f"AddressBook Init: {self.value = }; {type(self.value)}")
 
-#     def add_record(self, data):
-#         self.data.append(data)
-#         self.data[name] = Record.name.value
 
-#     def find(self, name):
-#         self.data.find(name)
-#         return Record or None
+    def add_record(self, value: Record) -> None:
+        """
+        Метод додавання записів.
+        """
 
-#     def delete(self, name):
-#         self.data.delete(name)
+        self.data[value.name.name] = value.phones.phones
+        print(f"AddressBook Add record self.data: {self.data}; {type(self.data)}")
+        # self.value.append(value)
+        # print(f"AddressBook Add record: {self.value = }; {type(self.value)}")
 
-#     def __str__(self):
-#         return super().__str__()
+    # def find(self, name: str) -> Record:
+    #     """
+    #     Метод пошуку записів за іменем.
+    #     """
+        # print(f"Address Book Find: {self.value = }; {type(self.value)}")
+
+        # for contact in self.value:
+        #     # print(f"Address Book Find For: {contact = }; {type(contact)}")
+        #     # print(f"Address Book Find For: {contact.name.name = }; {type(contact.name.name)}")
+        #     # print(f"Address Book Find For: {contact.phones.phones = }; {type(contact.phones.phones)}")
+        #     if contact.name.name == name:
+        #         return contact
+
+            # else:
+            #     return f"Your name {name} is not found"
+        
+    def delete(self, name: str) -> None:
+        
+        try:
+            deleted_name = self.data.pop(name)
+            print(f"Address Book Delete: {deleted_name = }")
+            print(f"Name {deleted_name} removed from the contact book.")
+        except KeyError:
+            print(f"This name {name} is not in the contacts book.")
+
+    def __str__(self) -> str:
+        return f"Contact in AddressBook name: {self.data}"
 
 
 def main():
-# Створення нової адресної книги
-    # book = AddressBook()
+
+    # Створення нової адресної книги
+    book = AddressBook()
 
     # Створення запису для John
     john_record = Record("John")
     john_record.add_phone("1234567890")
     john_record.add_phone("5555555555")
-    john_record.add_phone("3333333333")
-    john_record.remove_phone("3333333333")
 
     # Додавання запису John до адресної книги
-    # book.add_record(john_record)
+    book.add_record(john_record)
 
     # Створення та додавання нового запису для Jane
     jane_record = Record("Jane")
     jane_record.add_phone("9876543210")
-    # book.add_record(jane_record)
+
+    # Додавання запису Jane до адресної книги
+    book.add_record(jane_record)
 
     # Виведення всіх записів у книзі
-    # print(book)
-
-    # Знаходження та редагування телефону для John
-    # john = book.find("John")
-    john_record.edit_phone("1234567890", "1112223333")
-
-    print(john_record)  # Виведення: Contact name: John, phones: 1112223333; 5555555555
-
-    # # Пошук конкретного телефону у записі John
-    found_phone = john_record.find_phone("5555555555")
-    print(found_phone)
-    # print(f"{john.name}: {found_phone}")  # Виведення: John: 5555555555
-
-    # # Видалення запису Jane
-    # book.delete("Jane")
+    print(book)
 
 
 if __name__ == '__main__':
