@@ -1,7 +1,8 @@
 # Система для управління адресною книгою.
-
 from collections import UserDict
-from re import findall
+
+import colorama_printer_function
+
 
 class Field:
     """
@@ -18,33 +19,18 @@ class Name(Field):
     """
     Клас для зберігання імені контакту. Обов'язкове поле.
     """
-    
-    def __init__(self, value):
-        Field.__init__(self, value)
-        self.name = value
+    pass
+
 
 class Phone(Field):
     """
     Клас для зберігання номера телефону. Має валідацію формату (10 цифр).
     """
     def __init__(self, value):
-        Field.__init__(self, value)
-        self.phones = []
-
-    def is_valid_number(self, phone: str) -> bool:
-        """
-        Метод перевірки номера на валідність
-        """
-        if len(phone) != 10:
-            return False
-
-        full_digits = findall('[0-9]+', phone)
-
-        if len(full_digits[0]) == 10:
-            return True
-
-        return False
-    
+        if len(value) == 10 and int(value):
+            super().__init__(value)
+        else:
+            raise ValueError("Phone must be a string of 10 digits.")
 
 class Record:
     """
@@ -53,39 +39,42 @@ class Record:
     def __init__(self, name: str):
 
         self.name = Name(name)
-        self.phones = Phone([])
+        self.phones = []
 
     def add_phone(self, phone: str) -> None:
         """
         Метод для додавання телефонів.
         """
-        if not self.phones.is_valid_number(phone):
-            print(f"Phone {phone} is not added")
-
-        self.phones.phones.append(phone)
-        print(f"Phone {phone} is added")
+        colorama_printer_function.print_success(f"Record Add phone, self.name: {self.name}, {type(self.name)}")
+        colorama_printer_function.print_success(f"Record Add phone, phone: {phone}, {type(phone)}")
+        is_valid_phone = Phone(phone)
+        colorama_printer_function.print_success(f"Record Add phone, is valid phone: {is_valid_phone}, {type(is_valid_phone)}")
+        self.phones.append(is_valid_phone)
+        colorama_printer_function.print_success(f"Record Add phone, self.phones: {self.phones}, {type(self.phones)}")
+        
 
     def remove_phone(self, phone: str) -> None:
         """
         Метод для видалення телефонів.
         """
         if not self.phones.is_valid_number(phone):
-            print(f"Phone number {phone} is not valid")
+            return f"Phone number {phone} is not valid"
         
         self.phones.phones.remove(phone)
-        print(f"The phone number {phone} has been removed.")
+        return f"The phone number {phone} has been removed."
 
     def edit_phone(self, old_phone: str, new_phone: str) -> None:
         """
         Метод для редагування телефонів.
         """
         if not self.phones.is_valid_number(old_phone) or not self.phones.is_valid_number(new_phone):
-            print('Phone number is not valid')
+            return 'Phone number is not valid'
                 
         index_old = self.phones.phones.index(old_phone)
         self.phones.phones.remove(old_phone)
         self.phones.phones.insert(index_old, new_phone)
-        print("Your phone number is changed")
+
+        return "Your phone number is changed"
 
     def find_phone(self, phone: str) -> str:
         """
@@ -133,9 +122,9 @@ class AddressBook(UserDict):
         for data in self.data:
             if data.name.name == name:
                 self.data.remove(data)
-                print(f"The contact {name} is deleted")
-                break
-        print(f"This name {name} is not in the contacts book.")
+                return f"The contact {name} is deleted"
+
+        return f"This name {name} is not in the contacts book."
 
     def __str__(self) -> str:
         """
