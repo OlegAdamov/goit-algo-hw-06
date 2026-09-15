@@ -1,7 +1,8 @@
 # Система для управління адресною книгою.
 from collections import UserDict
+from pprint import pprint
 
-import colorama_printer_function
+from colorama_printer_function import print_error, print_success
 
 
 class Field:
@@ -41,17 +42,14 @@ class Record:
         self.name = Name(name)
         self.phones = []
 
+        # print_success(f"Record Add phone, self.name: {self.name}, {type(self.name)}")
+
     def add_phone(self, phone: str) -> None:
         """
         Метод для додавання телефонів.
         """
-        colorama_printer_function.print_success(f"Record Add phone, self.name: {self.name}, {type(self.name)}")
-        colorama_printer_function.print_success(f"Record Add phone, phone: {phone}, {type(phone)}")
         is_valid_phone = Phone(phone)
-        colorama_printer_function.print_success(f"Record Add phone, is valid phone: {is_valid_phone}, {type(is_valid_phone)}")
         self.phones.append(is_valid_phone)
-        colorama_printer_function.print_success(f"Record Add phone, self.phones: {self.phones}, {type(self.phones)}")
-        
 
     def remove_phone(self, phone: str) -> None:
         """
@@ -67,72 +65,63 @@ class Record:
         """
         Метод для редагування телефонів.
         """
-        if not self.phones.is_valid_number(old_phone) or not self.phones.is_valid_number(new_phone):
-            return 'Phone number is not valid'
-                
-        index_old = self.phones.phones.index(old_phone)
-        self.phones.phones.remove(old_phone)
-        self.phones.phones.insert(index_old, new_phone)
+        is_valid_phone = Phone(new_phone)
+        found_old_phone = self.find_phone(old_phone)
 
-        return "Your phone number is changed"
+        if found_old_phone:
+            found_old_phone.value = is_valid_phone.value
+        else:
+            raise ValueError(f"Phone number {old_phone} was not found for editing.")
 
     def find_phone(self, phone: str) -> str:
         """
         Метод поошуку телефону.
         """
-        for found_phone in self.phones.phones:
-
-            if found_phone == phone:
+        for found_phone in self.phones:
+            print(found_phone)
+            if found_phone.value == phone:
                 return found_phone
 
-        return f"This phone number {phone} is not in the contact list."
+        return None
 
     def __str__(self) -> str:
-        return f"Contact in Record name: {self.name.name}, phones: {'; '.join(p for p in self.phones.phones)}"
+        return f"Contact name: {self.name.value}, phones: {'; '.join(p.value for p in self.phones)}"
 
 
 class AddressBook(UserDict):
     """
     Клас для зберігання та управління записами.
     """
-    def __init__(self):
-        self.data = []  # Record(Name: Phone)
-
     def add_record(self, value: Record) -> None:
         """
         Метод додавання записів.
         """
-        self.data.append(value)
+        self.data[value.name.value] = value
 
     def find(self, name: str) -> Record:
         """
         Метод пошуку записів за іменем.
         """
-        for data in self.data:
+        return self.data.get(name, None)
 
-            if data.name:
-                return data
-
-        return f"Your name {name} is not found"
-        
     def delete(self, name: str) -> None:
         """
         Видалення записів за іменем.
         """
-        for data in self.data:
-            if data.name.name == name:
-                self.data.remove(data)
-                return f"The contact {name} is deleted"
-
-        return f"This name {name} is not in the contacts book."
+        if name in self.data:
+            del self.data[name]
+        else:
+            raise KeyError(f"A contact with the name {name} was not found in the address book.")
 
     def __str__(self) -> str:
         """
         For printing our book
         """
-        text = 'Contact in AddressBook'
-        for data in self.data:
-            text += f"\nname: {data.name}, phones: {data.phones.phones}"
+        text = 'Contact in AddressBook:'
+        new_values = self.data.values()
+
+        for new_value in new_values:
+            text += f" \n{new_value}"
         return text
 
 
@@ -163,6 +152,8 @@ def main():
 
     # Знаходження та редагування телефону для John
     john = book.find("John")
+    # print(john)
+    # pprint(john)
     john.edit_phone("1234567890", "1112223333")
 
     print(john)  # Виведення: Contact name: John, phones: 1112223333; 5555555555
